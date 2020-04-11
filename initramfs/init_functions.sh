@@ -17,6 +17,7 @@ setup_usb_configfs() {
 	usb_serialnumber="Jumpdrive"
 	usb_rndis_function="rndis.usb0"
 	usb_mass_storage_function="mass_storage.0"
+	usb_sd_mass_storage_function="mass_storage.1"
 
 	echo "Setting up an USB gadget through configfs..."
 	# Create an usb gadet configuration
@@ -38,6 +39,8 @@ setup_usb_configfs() {
 		|| echo "  Couldn't create $CONFIGFS/g1/functions/$usb_rndis_function"
 	mkdir $CONFIGFS/g1/functions/"$usb_mass_storage_function" \
 		|| echo "  Couldn't create $CONFIGFS/g1/functions/$usb_mass_storage_function"
+	mkdir $CONFIGFS/g1/functions/"$usb_mass_storage_function/lun.1" \
+		|| echo "  Couldn't create $CONFIGFS/g1/functions/$usb_mass_storage_function/lun.1"
 
 	# Create configuration instance for the gadget
 	mkdir $CONFIGFS/g1/configs/c.1 \
@@ -54,9 +57,11 @@ setup_usb_configfs() {
 
 	# Set up mass storage to internal EMMC
 	echo $EMMC > $CONFIGFS/g1/functions/"$usb_mass_storage_function"/lun.0/file
+	echo $SD > $CONFIGFS/g1/functions/"$usb_sd_mass_storage_function"/lun.1/file
 
 	# Rename the mass storage device
-	echo "JumpDrive" > $CONFIGFS/g1/functions/"$usb_mass_storage_function"/lun.0/inquiry_string
+	echo "JumpDrive eMMC" > $CONFIGFS/g1/functions/"$usb_mass_storage_function"/lun.0/inquiry_string
+	echo "JumpDrive microSD" > $CONFIGFS/g1/functions/"$usb_mass_storage_function"/lun.1/inquiry_string
 
 	# Link the rndis/mass_storage instance to the configuration
 	ln -s $CONFIGFS/g1/functions/"$usb_rndis_function" $CONFIGFS/g1/configs/c.1 \
